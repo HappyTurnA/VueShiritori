@@ -15,12 +15,12 @@
             <v-sheet min-height="70vh" rounded="lg">
               <!--  -->
               <v-container>
-                  <v-row>
-                      <v-col>
-                        <HistoryView></HistoryView>
-                        <WordInput></WordInput>
-                      </v-col>
-                  </v-row>
+                <v-row>
+                  <v-col>
+                    <HistoryView ref="m_historyView"></HistoryView>
+                    <WordInput ref="m_input" @confirm="onClick"></WordInput>
+                  </v-col>
+                </v-row>
               </v-container>
             </v-sheet>
           </v-col>
@@ -38,7 +38,17 @@ export default {
     WordInput,
     HistoryView,
   },
-  data: () => ({
-  }),
+  data: () => ({}),
+  methods: {
+    onClick(word) {
+      if (word.trim() === "") {
+        return;
+      }
+      if(!this.$refs.m_historyView.AddHistory(word)) {
+          alert("しりとり になっていない");
+      }
+      this.$refs.m_input.SetEmpty();
+    },
+  },
 };
 </script>
