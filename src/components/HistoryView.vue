@@ -16,10 +16,16 @@ import firebase from "firebase";
 const DATABASE_NAME = "shiritori";
 export default {
   data: () => ({
-    m_historys: ["しりとり", "りんご", "ゴリラ", "ラッパ", "パンツ"],
-    m_database: firebase.database()
+    m_historys: [],
+    m_database: firebase.database(),
   }),
-  beforeCreate: function () {
+  mounted: function () {
+    // DBデータ取得。追加あればm_historys にも追加。
+    const datas = this.m_database.ref(DATABASE_NAME);
+    datas.on("child_added", (snapshot) => {
+      const word = snapshot.val();
+      this.m_historys.push(word.body);
+    });
   },
   methods: {
     AddHistory(word) {
