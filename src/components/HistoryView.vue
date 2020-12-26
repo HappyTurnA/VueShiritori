@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{m_endText}}
     <v-container>
       <v-row v-for="(value, key, index) in m_historys" :key="index">
         <v-chip color="green" class="ma-2" text-color="white">{{
@@ -18,6 +19,7 @@ export default {
   data: () => ({
     m_historys: [],
     m_database: firebase.database(),
+    m_endText: '',
   }),
   mounted: function () {
     // DBデータ取得。追加あればm_historys にも追加。
@@ -31,6 +33,7 @@ export default {
     AddHistory(word) {
       if (this._PreCheck(word)) {
         this._RegisterToDb(word);
+        this.m_endText = this._GameEndCheck(word);
         return true;
       } else {
         return false;
@@ -44,13 +47,9 @@ export default {
       const lastChar = lastWord[lastWord.length - 1];
       const startChar = word[0];
 
-      // 変換代入先
-      let convLastChar = "";
-      let convStartChar = "";
-
       // 文字を平仮名に変換
-      convLastChar = convHira(lastChar);
-      convStartChar = convHira(startChar);
+      const convLastChar = convHira(lastChar);
+      const convStartChar = convHira(startChar);
 
       return convLastChar === convStartChar;
     },
@@ -66,11 +65,28 @@ export default {
         add_date: todayStr,
       });
     },
+    _GameEndCheck(word){  // 「ん」チェック用メンバ
+      if (word.trim() === "") {
+        return false;
+      }
+      const lastWord = this.m_historys[this.m_historys.length - 1];
+      const lastChar = lastWord[lastWord.length - 1];
+
+      // 文字を平仮名に変換
+      const convLastChar = convHira(lastChar);
+
+      if(convLastChar === 'ん'){
+        return 'あんたの負けよ！';
+      }else{
+        return'';
+      }
+
+    }
   },
 };
 
 // 平仮名変換関数
-// pram : 1文字
+// param : 1文字
 // ret  : 平仮名に変換された一文字、paramが平仮名の場合はfalseを返す
 function convHira(str) {
   const Kata_Start = 12449; // カタカナの最初の文字コード
