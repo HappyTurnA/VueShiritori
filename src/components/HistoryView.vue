@@ -17,10 +17,9 @@ const DATABASE_NAME = "shiritori";
 export default {
   data: () => ({
     m_historys: ["しりとり", "りんご", "ゴリラ", "ラッパ", "パンツ"],
-    m_database: null,
+    m_database: firebase.database()
   }),
   beforeCreate: function () {
-    this.database = firebase.database();
   },
   methods: {
     AddHistory(word) {
@@ -51,7 +50,7 @@ export default {
       return convLastChar === convStartChar;
     },
     _RegisterToDb(word) {
-      this.database.ref(DATABASE_NAME).push({
+      this.m_database.ref(DATABASE_NAME).push({
         user: "ユーザ名",
         body: word,
       });
