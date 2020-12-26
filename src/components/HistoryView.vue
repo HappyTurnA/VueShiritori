@@ -21,7 +21,7 @@ export default {
   }),
   mounted: function () {
     // DBデータ取得。追加あればm_historys にも追加。
-    const datas = this.m_database.ref(DATABASE_NAME);
+    const datas = this.m_database.ref(DATABASE_NAME).orderByKey().limitToLast(10); // 最新10件のみ表示
     datas.on("child_added", (snapshot) => {
       const word = snapshot.val();
       this.m_historys.push(word.body);
@@ -30,7 +30,6 @@ export default {
   methods: {
     AddHistory(word) {
       if (this._PreCheck(word)) {
-        this.m_historys.push(word);
         this._RegisterToDb(word);
         return true;
       } else {
@@ -56,9 +55,15 @@ export default {
       return convLastChar === convStartChar;
     },
     _RegisterToDb(word) {
+      const today = new Date();
+      const month= today.getMonth() + 1;
+      const todayStr = today.getFullYear() + "-" + month + "-" + today.getDate() + " " +
+          today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      
       this.m_database.ref(DATABASE_NAME).push({
         user: "ユーザ名",
         body: word,
+        add_date: todayStr,
       });
     },
   },
