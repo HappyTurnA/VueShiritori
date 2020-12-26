@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{m_endText}}
     <v-container>
       <v-row v-for="(value, key, index) in m_historys" :key="index">
         <v-chip color="green" class="ma-2" text-color="white">{{
@@ -14,11 +15,13 @@
 export default {
   data: () => ({
     m_historys: ["しりとり", "りんご", "ゴリラ", "ラッパ", "パンツ"],
+    m_endText: '',
   }),
   methods: {
     AddHistory(word) {
       if (this._PreCheck(word)) {
         this.m_historys.push(word);
+        this.m_endText = this._GameEndCheck(word);
         return true;
       } else {
         return false;
@@ -42,11 +45,31 @@ export default {
 
       return convLastChar === convStartChar;
     },
+    _GameEndCheck(word){  // 「ん」チェック用メンバ
+      if (word.trim() === "") {
+        return false;
+      }
+      const lastWord = this.m_historys[this.m_historys.length - 1];
+      const lastChar = lastWord[lastWord.length - 1];
+
+      // 変換代入先
+      let convLastChar = "";
+
+      // 文字を平仮名に変換
+      convLastChar = convHira(lastChar);
+
+      if(convLastChar == 'ん'){
+        return 'あんたの負けよ！';
+      }else{
+        return'';
+      }
+
+    }
   },
 };
 
 // 平仮名変換関数
-// pram : 1文字
+// param : 1文字
 // ret  : 平仮名に変換された一文字、paramが平仮名の場合はfalseを返す
 function convHira(str) {
 
