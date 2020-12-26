@@ -11,14 +11,22 @@
 </template>
 
 <script>
+import firebase from "firebase";
+
+const DATABASE_NAME = "shiritori";
 export default {
   data: () => ({
     m_historys: ["しりとり", "りんご", "ゴリラ", "ラッパ", "パンツ"],
+    m_database: null,
   }),
+  beforeCreate: function () {
+    this.database = firebase.database();
+  },
   methods: {
     AddHistory(word) {
       if (this._PreCheck(word)) {
         this.m_historys.push(word);
+        this._RegisterToDb(word);
         return true;
       } else {
         return false;
@@ -42,6 +50,12 @@ export default {
 
       return convLastChar === convStartChar;
     },
+    _RegisterToDb(word) {
+      this.database.ref(DATABASE_NAME).push({
+        user: "ユーザ名",
+        body: word,
+      });
+    },
   },
 };
 
@@ -49,18 +63,16 @@ export default {
 // pram : 1文字
 // ret  : 平仮名に変換された一文字、paramが平仮名の場合はfalseを返す
 function convHira(str) {
-
-  const Kata_Start = 12449;   // カタカナの最初の文字コード
-  const Kata_End   = 12538;   // カタカナの最後の文字コード
+  const Kata_Start = 12449; // カタカナの最初の文字コード
+  const Kata_End = 12538; // カタカナの最後の文字コード
 
   // カタカナなら平仮名に変換
   if (Kata_Start <= str.charCodeAt() <= Kata_End) {
     return str.replace(/[\u30A1-\u30FA]/g, (ch) =>
       String.fromCharCode(ch.charCodeAt(0) - 0x60)
     );
-  }else{
+  } else {
     return false;
   }
 }
-
 </script>
