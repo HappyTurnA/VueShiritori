@@ -35,13 +35,9 @@ export default {
       const lastChar = lastWord[lastWord.length - 1];
       const startChar = word[0];
 
-      // 変換代入先
-      let convLastChar = "";
-      let convStartChar = "";
-
       // 文字を平仮名に変換
-      convLastChar = convHira(lastChar);
-      convStartChar = convHira(startChar);
+      const convLastChar = convHira(lastChar);
+      const convStartChar = convHira(startChar);
 
       return convLastChar === convStartChar;
     },
@@ -52,13 +48,10 @@ export default {
       const lastWord = this.m_historys[this.m_historys.length - 1];
       const lastChar = lastWord[lastWord.length - 1];
 
-      // 変換代入先
-      let convLastChar = "";
-
       // 文字を平仮名に変換
-      convLastChar = convHira(lastChar);
+      const convLastChar = convHira(lastChar);
 
-      if(convLastChar == 'ん'){
+      if(convLastChar === 'ん'){
         return 'あんたの負けよ！';
       }else{
         return'';
