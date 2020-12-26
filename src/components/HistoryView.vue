@@ -12,15 +12,27 @@
 </template>
 
 <script>
+import firebase from "firebase";
+
+const DATABASE_NAME = "shiritori";
 export default {
   data: () => ({
-    m_historys: ["しりとり", "りんご", "ゴリラ", "ラッパ", "パンツ"],
+    m_historys: [],
+    m_database: firebase.database(),
     m_endText: '',
   }),
+  mounted: function () {
+    // DBデータ取得。追加あればm_historys にも追加。
+    const datas = this.m_database.ref(DATABASE_NAME).orderByKey().limitToLast(10); // 最新10件のみ表示
+    datas.on("child_added", (snapshot) => {
+      const word = snapshot.val();
+      this.m_historys.push(word.body);
+    });
+  },
   methods: {
     AddHistory(word) {
       if (this._PreCheck(word)) {
-        this.m_historys.push(word);
+        this._RegisterToDb(word);
         this.m_endText = this._GameEndCheck(word);
         return true;
       } else {
@@ -40,6 +52,18 @@ export default {
       const convStartChar = convHira(startChar);
 
       return convLastChar === convStartChar;
+    },
+    _RegisterToDb(word) {
+      const today = new Date();
+      const month= today.getMonth() + 1;
+      const todayStr = today.getFullYear() + "-" + month + "-" + today.getDate() + " " +
+          today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      
+      this.m_database.ref(DATABASE_NAME).push({
+        user: "ユーザ名",
+        body: word,
+        add_date: todayStr,
+      });
     },
     _GameEndCheck(word){  // 「ん」チェック用メンバ
       if (word.trim() === "") {
@@ -65,18 +89,16 @@ export default {
 // param : 1文字
 // ret  : 平仮名に変換された一文字、paramが平仮名の場合はfalseを返す
 function convHira(str) {
-
-  const Kata_Start = 12449;   // カタカナの最初の文字コード
-  const Kata_End   = 12538;   // カタカナの最後の文字コード
+  const Kata_Start = 12449; // カタカナの最初の文字コード
+  const Kata_End = 12538; // カタカナの最後の文字コード
 
   // カタカナなら平仮名に変換
   if (Kata_Start <= str.charCodeAt() <= Kata_End) {
     return str.replace(/[\u30A1-\u30FA]/g, (ch) =>
       String.fromCharCode(ch.charCodeAt(0) - 0x60)
     );
-  }else{
+  } else {
     return false;
   }
 }
-
 </script>
